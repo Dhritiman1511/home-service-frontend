@@ -92,6 +92,7 @@ const ServiceDetails = () => {
       <h1 className="text-2xl font-bold mb-6">{service.name}</h1>
       <p className="text-lg mb-4">{service.description}</p>
       <p className="text-lg font-bold mb-4">Price: ${service.price}</p>
+      <p className="text-lg mb-4">Provider: {service.providerName}</p> {/* Display Provider Name */}
       <button
         onClick={handleBookNow}
         className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
@@ -138,7 +139,7 @@ const ServiceDetails = () => {
             <input
               type="number"
               value={isEditing ? editingReview.rating : newReview.rating}
-              onChange={(e) => (isEditing ? setEditingReview({ ...editingReview, rating: e.target.value }) : setNewReview({ ...newReview, rating: e.target.value }))}
+              onChange={(e) => (isEditing ? setEditingReview({ ...editingReview, rating: e.target.value }) : setNewReview({ ...newReview, rating: e.target.value }))} 
               className="w-full p-2 mt-2 border"
               min="1"
               max="5"

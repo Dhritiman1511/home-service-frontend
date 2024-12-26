@@ -13,6 +13,7 @@ import HomePage from './pages/HomePage';
 import ServiceDetails from './pages/ServiceDetails';
 import BookingForm from './components/BookingForm';
 import BookingDetails from './pages/BookingDetails';
+import ServiceBookings from './pages/ServiceBookings';
 
 // Custom Route component to handle role-based redirection
 const RoleBasedRoute = ({ element, requiredRole, ...rest }) => {
@@ -42,6 +43,7 @@ const App = () => (
         <Route path="/service/:serviceId" element={<ServiceDetails />} />
         <Route path="/booking-form" element={<BookingForm />} />
         <Route path='/booking-details' element={<BookingDetails />} />
+        <Route path="/bookings/:serviceId" element={<ServiceBookings />} />
         {/* Role-Based Private Routes */}
         <Route path='/' element={<HomePage />} />
         <Route

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 
 const ServiceList = ({ services, handleEditService, handleDeleteService }) => {
   return (
@@ -7,6 +8,7 @@ const ServiceList = ({ services, handleEditService, handleDeleteService }) => {
         {services.map((service) => (
           <li key={service._id} className="p-4 bg-gray-100 rounded shadow mb-4">
             <h3 className="text-lg font-medium">{service.name}</h3>
+            <p className="text-lg font-medium">{service.providerName}</p>
             <p className="text-sm">{service.description}</p>
             <p className="text-sm font-bold">Price: ${service.price}</p>
             <p className="text-sm">Category: {service.category}</p>

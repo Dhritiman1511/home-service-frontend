@@ -4,10 +4,9 @@ import axios from 'axios';
 const API_URL = 'http://localhost:5000/api'; // Replace with your backend URL
 
 // Get all bookings by id (with optional pagination and status filter)
-export const getBookings = async (userId, page = 1, limit = 10, status = '') => {
+export const getBookings = async (userId) => {
   try {
-    const params = { page, limit, status };
-    const response = await axios.get(`${API_URL}/bookings/${userId}`, { params });
+    const response = await axios.get(`${API_URL}/bookings/${userId}`);
     return response.data;
   } catch (error) {
     throw error;

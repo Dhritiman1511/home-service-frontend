@@ -57,3 +57,13 @@ export const deleteService = async (serviceId) => {
     throw error;
   }
 };
+
+// Get services by provider ID
+export const getProviderServices = async (providerId) => {
+  try {
+    const response = await axios.get(`${API_URL}/services/provider/${providerId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -1,6 +1,7 @@
+/* eslint-disable no-useless-catch */
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000'; // Replace with your backend URL
+const API_URL = 'http://localhost:5000/api'; // Replace with your backend URL
 
 // Get all services
 export const getServices = async () => {
@@ -15,7 +16,17 @@ export const getServices = async () => {
 // Get all users
 export const getUsers = async () => {
   try {
-    const response = await axios.get(`${API_URL}/users`);
+    const response = await axios.get(`${API_URL}/auth/users`);
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+export const getServiceProvider = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/auth/service-providers`);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     throw error;

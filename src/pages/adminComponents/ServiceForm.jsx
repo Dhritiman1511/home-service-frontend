@@ -8,10 +8,7 @@ const ServiceForm = ({
   handleSubmit,
 }) => {
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="p-4 bg-gray-200 rounded shadow"
-    >
+    <form onSubmit={handleSubmit} className="p-4 bg-gray-200 rounded shadow">
       <h2 className="text-xl font-semibold mb-4">
         {editingService ? 'Edit Service' : 'Add Service'}
       </h2>

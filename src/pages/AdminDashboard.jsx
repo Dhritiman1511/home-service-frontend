@@ -1,44 +1,60 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
+import { getToken } from "../utils/cookieUtils";
 import {
   getServices,
   addService,
   updateService,
   deleteService,
-} from '../services/serviceService';
+} from "../services/serviceService";
+import { getUsers, getServiceProvider } from "../services/adminService";
 import {
   fetchAllBookingsForAdmin,
   updateBooking,
   deleteBooking,
   updateBookingStatus,
-} from '../services/bookingService'; // Import booking services
-import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/categoryService'; // Import category services
-import ServiceList from './adminComponents/ServiceList';
-import ServiceForm from './adminComponents/ServiceForm';
-import BookingList from './adminComponents/BookingList'; // Import the BookingList component
-import BookingForm from './adminComponents/BookingForm'; // Import the BookingForm component
-import CategoryList from './adminComponents/CategoryList'; // Import the CategoryList component
-import CategoryForm from './adminComponents/CategoryForm'; // Import the CategoryForm component
+} from "../services/bookingService"; // Import booking services
+import {
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from "../services/categoryService"; // Import category services
+import { useAuth } from "../context/AuthContext"; // Add this import at the top
+import ServiceList from "./adminComponents/ServiceList";
+import ServiceForm from "./adminComponents/ServiceForm";
+import BookingList from "./adminComponents/BookingList"; // Import the BookingList component
+import BookingForm from "./adminComponents/BookingForm"; // Import the BookingForm component
+import CategoryList from "./adminComponents/CategoryList"; // Import the CategoryList component
+import CategoryForm from "./adminComponents/CategoryForm"; // Import the CategoryForm component
+import ServiceProviderList from "./adminComponents/ServiceProviderList";
+import UserList from "./adminComponents/UserList";
 
 const AdminDashboard = () => {
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
   const [newService, setNewService] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: '',
-    availability: 'Available',
+    name: "",
+    description: "",
+    price: "",
+    category: "",
+    availability: "Available",
   });
   const [editingService, setEditingService] = useState(null);
-  const [newCategory, setNewCategory] = useState({ name: '' });
+  const [newCategory, setNewCategory] = useState({ name: "" });
   const [editingCategory, setEditingCategory] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [editingBooking, setEditingBooking] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [serviceProviders, setServiceProviders] = useState([]);
+  const { logout } = useAuth();
 
   useEffect(() => {
     fetchServices();
     fetchCategories();
     fetchBookings();
+    fetchUsers();
+    fetchServiceProviders();
   }, []);
 
   const fetchServices = async () => {
@@ -46,7 +62,7 @@ const AdminDashboard = () => {
       const data = await getServices();
       setServices(data);
     } catch (error) {
-      console.log('Error fetching services:', error);
+      console.log("Error fetching services:", error);
     }
   };
 
@@ -55,7 +71,25 @@ const AdminDashboard = () => {
       const data = await getCategories();
       setCategories(data);
     } catch (error) {
-      console.log('Error fetching categories:', error);
+      console.log("Error fetching categories:", error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const data = await getUsers();
+      setUsers(data);
+    } catch (error) {
+      console.log("Error fetching users:", error);
+    }
+  };
+
+  const fetchServiceProviders = async () => {
+    try {
+      const data = await getServiceProvider();
+      setServiceProviders(data);
+    } catch (error) {
+      console.log("Error fetching service providers:", error);
     }
   };
 
@@ -64,7 +98,7 @@ const AdminDashboard = () => {
       const data = await fetchAllBookingsForAdmin();
       setBookings(data);
     } catch (error) {
-      console.log('Error fetching bookings:', error);
+      console.log("Error fetching bookings:", error);
     }
   };
 
@@ -76,17 +110,41 @@ const AdminDashboard = () => {
   const handleAddService = async (e) => {
     e.preventDefault();
     try {
-      const addedService = await addService(newService);
+      // Retrieve the JWT token from cookies
+      const token = getToken();
+
+      if (!token) {
+        console.log("No token found. Please log in.");
+        return;
+      }
+
+      // Decode the token to get the user's ID
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.id;
+
+      if (!userId) {
+        console.log("Invalid token. User ID not found.");
+        return;
+      }
+
+      // Set the provider field in the newService object
+      const serviceWithProvider = { ...newService, provider: userId };
+
+      // Add the service to the backend
+      const addedService = await addService(serviceWithProvider);
       setServices([...services, addedService]);
+
+      // Reset the form
       setNewService({
-        name: '',
-        description: '',
-        price: '',
-        category: '',
-        availability: 'Available',
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        availability: "Available",
+        provider: "",
       });
     } catch (error) {
-      console.log('Error adding service:', error);
+      console.log("Error adding service:", error);
     }
   };
 
@@ -98,7 +156,10 @@ const AdminDashboard = () => {
   const handleUpdateService = async (e) => {
     e.preventDefault();
     try {
-      const updatedService = await updateService(editingService._id, newService);
+      const updatedService = await updateService(
+        editingService._id,
+        newService
+      );
       setServices(
         services.map((service) =>
           service._id === updatedService._id ? updatedService : service
@@ -106,14 +167,14 @@ const AdminDashboard = () => {
       );
       setEditingService(null);
       setNewService({
-        name: '',
-        description: '',
-        price: '',
-        category: '',
-        availability: 'Available',
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        availability: "Available",
       });
     } catch (error) {
-      console.log('Error updating service:', error);
+      console.log("Error updating service:", error);
     }
   };
 
@@ -122,7 +183,7 @@ const AdminDashboard = () => {
       await deleteService(serviceId);
       setServices(services.filter((service) => service._id !== serviceId));
     } catch (error) {
-      console.log('Error deleting service:', error);
+      console.log("Error deleting service:", error);
     }
   };
 
@@ -136,34 +197,39 @@ const AdminDashboard = () => {
     try {
       const addedCategory = await createCategory(newCategory);
       setCategories([...categories, addedCategory]);
-      setNewCategory({ name: '' });
+      setNewCategory({ name: "" });
     } catch (error) {
-      console.log('Error adding category:', error);
+      console.log("Error adding category:", error);
     }
   };
 
   const handleUpdateCategory = async (e) => {
     e.preventDefault();
     try {
-      const updatedCategory = await updateCategory(editingCategory._id, newCategory);
+      const updatedCategory = await updateCategory(
+        editingCategory._id,
+        newCategory
+      );
       setCategories(
         categories.map((category) =>
           category._id === updatedCategory._id ? updatedCategory : category
         )
       );
       setEditingCategory(null);
-      setNewCategory({ name: '' });
+      setNewCategory({ name: "" });
     } catch (error) {
-      console.log('Error updating category:', error);
+      console.log("Error updating category:", error);
     }
   };
 
   const handleDeleteCategory = async (categoryId) => {
     try {
       await deleteCategory(categoryId);
-      setCategories(categories.filter((category) => category._id !== categoryId));
+      setCategories(
+        categories.filter((category) => category._id !== categoryId)
+      );
     } catch (error) {
-      console.log('Error deleting category:', error);
+      console.log("Error deleting category:", error);
     }
   };
 
@@ -181,7 +247,7 @@ const AdminDashboard = () => {
       );
       setEditingBooking(null);
     } catch (error) {
-      console.log('Error updating booking:', error);
+      console.log("Error updating booking:", error);
     }
   };
 
@@ -190,7 +256,7 @@ const AdminDashboard = () => {
       await deleteBooking(bookingId);
       setBookings(bookings.filter((booking) => booking._id !== bookingId));
     } catch (error) {
-      console.log('Error deleting booking:', error);
+      console.log("Error deleting booking:", error);
     }
   };
 
@@ -203,14 +269,26 @@ const AdminDashboard = () => {
         )
       );
     } catch (error) {
-      console.log('Error updating booking status:', error);
+      console.log("Error updating booking status:", error);
     }
   };
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
-      
+      <button
+        className="bg-red-500 text-white py-2 px-4 rounded"
+        onClick={logout} // Trigger logout on click
+      >
+        Logout
+      </button>
+
+      {/* Users Section */}
+      <UserList users={users} />
+
+      {/* Service Providers Section */}
+      <ServiceProviderList serviceProviders={serviceProviders} />
+
       {/* Services Section */}
       <ServiceList
         services={services}
@@ -224,7 +302,7 @@ const AdminDashboard = () => {
         handleInputChange={handleInputChange}
         handleSubmit={editingService ? handleUpdateService : handleAddService}
       />
-      
+
       {/* Category Section */}
       <CategoryList
         categories={categories}
@@ -234,8 +312,12 @@ const AdminDashboard = () => {
       <CategoryForm
         newCategory={newCategory}
         editingCategory={editingCategory}
-        handleInputChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-        handleSubmit={editingCategory ? handleUpdateCategory : handleAddCategory}
+        handleInputChange={(e) =>
+          setNewCategory({ ...newCategory, name: e.target.value })
+        }
+        handleSubmit={
+          editingCategory ? handleUpdateCategory : handleAddCategory
+        }
       />
 
       {/* Bookings Section */}

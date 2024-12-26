@@ -4,7 +4,7 @@ import { getServices } from '../services/serviceService';
 import { Link, useNavigate } from 'react-router-dom';
 
 const UserDashboard = () => {
-  const { authData } = useAuth();
+  const { authData, logout } = useAuth(); // Access the logout function from context
   const [services, setServices] = useState([]);
   const navigate = useNavigate(); // For programmatic navigation
 
@@ -45,6 +45,7 @@ const UserDashboard = () => {
               <h3 className="text-lg font-medium">{service.name}</h3>
               <p className="text-sm">{service.description}</p>
               <p className="text-sm font-bold">Price: ${service.price}</p>
+              <p className="text-sm">Provider: {service.providerName}</p> {/* Displaying the provider name */}
               <Link
                 to={`/service/${service._id}`}
                 className="text-blue-500 hover:underline"
@@ -54,6 +55,16 @@ const UserDashboard = () => {
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* Logout Button */}
+      <div className="mt-6">
+        <button
+          onClick={logout}
+          className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600"
+        >
+          Logout
+        </button>
       </div>
     </div>
   );
