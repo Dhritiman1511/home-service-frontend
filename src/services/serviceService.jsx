@@ -67,3 +67,14 @@ export const getProviderServices = async (providerId) => {
     throw error;
   }
 };
+
+export const searchServiceByName = async (serviceName) => {
+  try {
+    const response = await axios.get(`${API_URL}/services/search`, {
+      params: { name: serviceName }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
