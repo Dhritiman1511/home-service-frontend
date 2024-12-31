@@ -4,17 +4,16 @@ import { getServiceById } from '../services/serviceService';
 import { getReviewsForService, postReview, updateReview, deleteReview } from '../services/reviewService';
 
 const ServiceDetails = () => {
-  const { serviceId } = useParams(); // Get serviceId from the route params
-  const navigate = useNavigate(); // For navigation
+  const { serviceId } = useParams();
+  const navigate = useNavigate();
   const [service, setService] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [newReview, setNewReview] = useState({ rating: '', comment: '' });
+  const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
   const [error, setError] = useState(null);
-  const [isEditing, setIsEditing] = useState(null); // For editing review
-  const [editingReview, setEditingReview] = useState({ rating: '', comment: '' });
+  const [isEditing, setIsEditing] = useState(null);
+  const [editingReview, setEditingReview] = useState({ rating: 0, comment: '' });
 
   useEffect(() => {
-    // Fetch the service details
     getServiceById(serviceId)
       .then((data) => setService(data))
       .catch((err) => {
@@ -22,7 +21,6 @@ const ServiceDetails = () => {
         setError('Unable to fetch service details.');
       });
 
-    // Fetch reviews for the service
     getReviewsForService(serviceId)
       .then((data) => setReviews(data))
       .catch((err) => {
@@ -32,7 +30,6 @@ const ServiceDetails = () => {
   }, [serviceId]);
 
   const handleBookNow = () => {
-    // Redirect to the booking form with the service ID
     navigate(`/booking-form?serviceId=${serviceId}`);
   };
 
@@ -41,7 +38,7 @@ const ServiceDetails = () => {
       const reviewData = { ...newReview, service: serviceId };
       const postedReview = await postReview(serviceId, reviewData);
       setReviews([...reviews, postedReview]);
-      setNewReview({ rating: '', comment: '' }); // Clear review input fields
+      setNewReview({ rating: 0, comment: '' });
     } catch (err) {
       console.log('Error posting review:', err);
       setError('Unable to post review.');
@@ -53,8 +50,8 @@ const ServiceDetails = () => {
       const updatedReviewData = { ...editingReview };
       const updatedReview = await updateReview(isEditing, updatedReviewData);
       setReviews(reviews.map((r) => (r._id === updatedReview._id ? updatedReview : r)));
-      setIsEditing(null); // Close editing
-      setEditingReview({ rating: '', comment: '' });
+      setIsEditing(null);
+      setEditingReview({ rating: 0, comment: '' });
     } catch (err) {
       console.log('Error updating review:', err);
       setError('Unable to update review.');
@@ -66,7 +63,7 @@ const ServiceDetails = () => {
       const confirmation = window.confirm('Are you sure you want to delete this review?');
       if (confirmation) {
         await deleteReview(reviewId);
-        setReviews(reviews.filter((review) => review._id !== reviewId)); // Remove the review from state
+        setReviews(reviews.filter((review) => review._id !== reviewId));
       }
     } catch (err) {
       console.log('Error deleting review:', err);
@@ -79,87 +76,121 @@ const ServiceDetails = () => {
     setEditingReview({ rating: review.rating, comment: review.comment });
   };
 
+  const handleStarClick = (rating, isEditMode = false) => {
+    if (isEditMode) {
+      setEditingReview({ ...editingReview, rating });
+    } else {
+      setNewReview({ ...newReview, rating });
+    }
+  };
+
+  const renderStarRating = (currentRating, isEditMode = false) => {
+    const stars = Array.from({ length: 5 }, (_, index) => (
+      <span
+        key={index}
+        onClick={() => handleStarClick(index + 1, isEditMode)}
+        className={`cursor-pointer text-2xl ${
+          index < currentRating ? 'text-yellow-500' : 'text-gray-300'
+        }`}
+      >
+        ★
+      </span>
+    ));
+    return <div className="flex space-x-1">{stars}</div>;
+  };
+
   if (error) {
-    return <div className="p-6 text-red-500">{error}</div>;
+    return <div className="p-6 text-red-500 text-center font-semibold">{error}</div>;
   }
 
   if (!service) {
-    return <div className="p-6">Loading...</div>;
+    return <div className="p-6 text-center">Loading...</div>;
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">{service.name}</h1>
-      <p className="text-lg mb-4">{service.description}</p>
-      <p className="text-lg font-bold mb-4">Price: ${service.price}</p>
-      <p className="text-lg mb-4">Provider: {service.providerName}</p> {/* Display Provider Name */}
-      <button
-        onClick={handleBookNow}
-        className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-      >
-        Book Now
-      </button>
+    <div className="max-w-full mx-auto px-80 py-20 bg-gray-50">
+      <div className="bg-white shadow-lg rounded-2xl p-8 mb-8">
+        <h1 className="text-3xl font-bold mb-4 text-gray-800">{service.name}</h1>
+        <p className="text-lg mb-6 text-gray-600">{service.description}</p>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <p className="text-2xl font-semibold text-gray-800">${service.price}</p>
+            <p className="text-sm text-gray-500">Provided by: {service.providerName}</p>
+          </div>
+          <button
+            onClick={handleBookNow}
+            className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-105"
+          >
+            Book Now
+          </button>
+        </div>
+      </div>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold">Reviews</h2>
+      <div className="bg-white shadow-lg rounded-2xl p-8">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Reviews</h2>
 
-        {reviews.length === 0 && <p>No reviews yet. Be the first to review!</p>}
+        {reviews.length === 0 && (
+          <p className="text-gray-600 italic">No reviews yet. Be the first to review!</p>
+        )}
 
-        <div className="mt-4">
+        <div className="space-y-6">
           {reviews.map((review) => (
-            <div key={review._id} className="border-b py-4">
-              <div className="flex justify-between">
+            <div key={review._id} className="border-b border-gray-200 pb-6">
+              <div className="flex justify-between items-start mb-2">
                 <div>
-                  <strong>{review.user.name}</strong> - <span>{review.rating} ⭐</span>
+                  <strong className="text-gray-800">{review.user.name}</strong>
+                  {renderStarRating(review.rating)}
                 </div>
-                <div className="flex space-x-4">
+                <div className="space-x-2">
                   <button
                     onClick={() => handleEditReview(review)}
-                    className="text-blue-500"
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDeleteReview(review._id)}
-                    className="text-red-500"
+                    className="text-red-600 hover:text-red-800 transition-colors"
                   >
                     Delete
                   </button>
                 </div>
               </div>
-              <p>{review.comment}</p>
+              <p className="text-gray-600">{review.comment}</p>
             </div>
           ))}
         </div>
 
         <div className="mt-8">
-          <h3 className="text-lg font-semibold">{isEditing ? 'Edit Review' : 'Add Review'}</h3>
-          <div className="mt-4">
-            <label className="block">Rating (1-5)</label>
-            <input
-              type="number"
-              value={isEditing ? editingReview.rating : newReview.rating}
-              onChange={(e) => (isEditing ? setEditingReview({ ...editingReview, rating: e.target.value }) : setNewReview({ ...newReview, rating: e.target.value }))} 
-              className="w-full p-2 mt-2 border"
-              min="1"
-              max="5"
-            />
-          </div>
-          <div className="mt-4">
-            <label className="block">Comment</label>
-            <textarea
-              value={isEditing ? editingReview.comment : newReview.comment}
-              onChange={(e) => (isEditing ? setEditingReview({ ...editingReview, comment: e.target.value }) : setNewReview({ ...newReview, comment: e.target.value }))}
-              className="w-full p-2 mt-2 border"
-            />
-          </div>
-          <div className="mt-4">
-            <button
-              onClick={isEditing ? handleUpdateReview : handlePostReview}
-              className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-            >
-              {isEditing ? 'Update Review' : 'Post Review'}
-            </button>
+          <h3 className="text-xl font-semibold mb-4 text-gray-800">
+            {isEditing ? 'Edit Review' : 'Add Review'}
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+              {renderStarRating(isEditing ? editingReview.rating : newReview.rating, isEditing)}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+              <textarea
+                value={isEditing ? editingReview.comment : newReview.comment}
+                onChange={(e) =>
+                  isEditing
+                    ? setEditingReview({ ...editingReview, comment: e.target.value })
+                    : setNewReview({ ...newReview, comment: e.target.value })
+                }
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                rows="4"
+              />
+            </div>
+            <div>
+              <button
+                onClick={isEditing ? handleUpdateReview : handlePostReview}
+                className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out"
+              >
+                {isEditing ? 'Update Review' : 'Post Review'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

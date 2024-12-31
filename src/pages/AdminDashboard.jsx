@@ -20,7 +20,6 @@ import {
   updateCategory,
   deleteCategory,
 } from "../services/categoryService"; // Import category services
-import { useAuth } from "../context/AuthContext"; // Add this import at the top
 import ServiceList from "./adminComponents/ServiceList";
 import ServiceForm from "./adminComponents/ServiceForm";
 import BookingList from "./adminComponents/BookingList"; // Import the BookingList component
@@ -47,7 +46,6 @@ const AdminDashboard = () => {
   const [editingBooking, setEditingBooking] = useState(null);
   const [users, setUsers] = useState([]);
   const [serviceProviders, setServiceProviders] = useState([]);
-  const { logout } = useAuth();
 
   useEffect(() => {
     fetchServices();
@@ -120,7 +118,7 @@ const AdminDashboard = () => {
 
       // Decode the token to get the user's ID
       const decodedToken = jwtDecode(token);
-      const userId = decodedToken.id;
+      const userId = decodedToken.id; 
 
       if (!userId) {
         console.log("Invalid token. User ID not found.");
@@ -276,12 +274,6 @@ const AdminDashboard = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
-      <button
-        className="bg-red-500 text-white py-2 px-4 rounded"
-        onClick={logout} // Trigger logout on click
-      >
-        Logout
-      </button>
 
       {/* Users Section */}
       <UserList users={users} />

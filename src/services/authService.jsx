@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_URL = "http://localhost:5000/api"; // Replace with your backend API URL
+const API_URL = import.meta.env.VITE_API_URL;// Replace with your backend API URL
 
 export const loginService = async (email, password) => {
   try {

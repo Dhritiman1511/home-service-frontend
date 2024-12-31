@@ -1,23 +1,13 @@
-import { useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import { getCategories } from '../services/categoryService';
-import { getProviderServices, addService, updateService } from '../services/serviceService';
-import ServiceForm from './adminComponents/ServiceForm';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { getProviderServices } from "../services/serviceService";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { CalendarIcon, PencilIcon, PlusCircle } from "lucide-react";
 
 const ServiceProviderDashboard = () => {
-  const [newService, setNewService] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: '',
-    availability: 'Available',
-  });
-  const [categories, setCategories] = useState([]);
-  const [editingService, setEditingService] = useState(null);
   const [services, setServices] = useState([]);
-  const { authData, loading, logout } = useAuth(); // Get logout function from AuthContext
+  const { authData, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,65 +20,25 @@ const ServiceProviderDashboard = () => {
 
     try {
       const decodedToken = jwtDecode(authData.token);
-      
-      // Fetch both categories and services in parallel
-      Promise.all([getCategories(), getProviderServices(decodedToken.id)])
-        .then(([categoriesData, servicesData]) => {
-          setCategories(categoriesData);
+      getProviderServices(decodedToken.id)
+        .then((servicesData) => {
           setServices(servicesData);
         })
         .catch((error) => {
-          console.error('Error fetching data:', error);
+          console.error("Error fetching services:", error);
           if (error.response?.status === 401) {
             navigate("/login");
           }
         });
     } catch (error) {
-      console.error('Error decoding token:', error);
+      console.error("Error decoding token:", error);
       navigate("/login");
     }
   }, [authData, loading, navigate]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewService(prevService => ({
-      ...prevService,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editingService) {
-        const updatedService = await updateService(editingService._id, newService);
-        setServices(prevServices =>
-          prevServices.map(service =>
-            service._id === editingService._id ? updatedService : service
-          )
-        );
-        setEditingService(null);
-      } else {
-        const newServiceData = await addService(newService);
-        setServices(prevServices => [...prevServices, newServiceData]);
-      }
-      
-      // Reset form
-      setNewService({
-        name: '',
-        description: '',
-        price: '',
-        category: '',
-        availability: 'Available',
-      });
-    } catch (error) {
-      console.error('Error handling service:', error);
-    }
-  };
-
   const handleEditService = (service) => {
-    setEditingService(service);
-    setNewService(service);
+    // Navigate to the form page with the service ID
+    navigate(`/service-form/${service._id}`);
   };
 
   const handleViewBookings = (serviceId) => {
@@ -101,49 +51,62 @@ const ServiceProviderDashboard = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Service Provider Dashboard</h1>
-
-      {/* Logout Button */}
-      <div className="mb-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold text-gray-800">Your Services</h2>
         <button
-          onClick={logout}
-          className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600"
+          onClick={() => navigate("/service-form")}
+          className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-300"
         >
-          Logout
+          <PlusCircle className="w-5 h-5 mr-2" />
+          Add New Service
         </button>
       </div>
 
-      <ServiceForm
-        newService={newService}
-        categories={categories}
-        editingService={editingService}
-        handleInputChange={handleInputChange}
-        handleSubmit={handleSubmit}
-      />
-
-      <h2 className="text-xl font-semibold mt-6 mb-4">Your Services</h2>
-      <ul>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {services.map((service) => (
-          <li key={service._id} className="mb-4 p-4 bg-gray-100 rounded shadow">
-            <h3 className="text-lg font-medium">{service.name}</h3>
-            <p>{service.description}</p>
-            <p className="font-bold">Price: ${service.price}</p>
-            <p className="italic">Availability: {service.availability}</p>
-            <button
-              onClick={() => handleEditService(service)}
-              className="text-blue-500 hover:underline mt-2"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleViewBookings(service._id)}
-              className="text-green-500 hover:underline mt-2 ml-4"
-            >
-              View Bookings
-            </button>
-          </li>
+          <div
+            key={service._id}
+            className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:transform hover:scale-105"
+          >
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                {service.name}
+              </h3>
+              <p className="text-gray-600 mb-4">{service.description}</p>
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-2xl font-bold text-green-600">
+                &#8377;{service.price}
+                </span>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    service.availability === "Available"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {service.availability}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <button
+                  onClick={() => handleEditService(service)}
+                  className="flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-300"
+                >
+                  <PencilIcon className="w-5 h-5 mr-1" />
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleViewBookings(service._id)}
+                  className="flex items-center text-purple-600 hover:text-purple-800 transition-colors duration-300"
+                >
+                  <CalendarIcon className="w-5 h-5 mr-1" />
+                  View Bookings
+                </button>
+              </div>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

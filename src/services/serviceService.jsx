@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-catch */
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api"; // Replace with your backend URL
+const API_URL = import.meta.env.VITE_API_URL; // Replace with your backend URL
 
 // Get all services
 export const getServices = async () => {
@@ -73,6 +73,15 @@ export const searchServiceByName = async (serviceName) => {
     const response = await axios.get(`${API_URL}/services/search`, {
       params: { name: serviceName }
     });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getServicesByCategory = async (categoryId) => {
+  try {
+    const response = await axios.get(`${API_URL}/services/category/${categoryId}`);
     return response.data;
   } catch (error) {
     throw error;

@@ -1,22 +1,37 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast"; // Import toast
 
 const Login = () => {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // Hook for navigation
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    await login(email, password);
+    try {
+      // Try to log the user in
+      await login(email, password);
+      toast.success("Login successful!"); // Show success toast
+      navigate("/user/dashboard"); // Redirect after successful login
+    } catch (error) {
+      toast.error("Login failed. Please try again."); // Show error toast
+    }
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-10 p-5 border rounded-lg shadow-lg">
+    <div className="max-w-sm mx-auto my-20 mt-30 p-5 pb-10 border rounded-lg shadow-lg">
       <h2 className="text-xl font-bold mb-4">Login</h2>
       <form onSubmit={handleLogin}>
         <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Email
+          </label>
           <input
             type="email"
             id="email"
@@ -27,7 +42,12 @@ const Login = () => {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Password
+          </label>
           <input
             type="password"
             id="password"
@@ -37,8 +57,19 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded-lg">Login</button>
+        <button
+          type="submit"
+          className="w-full mt-2 bg-slate-700 text-white p-2 font-semibold text-md rounded-lg"
+        >
+          Login
+        </button>
       </form>
+      <p className="mt-4 text-md text-center text-gray-600">
+        Not registered yet?{" "}
+        <Link to="/register" className="text-blue-500 hover:underline">
+          Register
+        </Link>
+      </p>
     </div>
   );
 };

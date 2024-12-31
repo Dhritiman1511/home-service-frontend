@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-catch */
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api'; // Replace with your backend URL
+const API_URL = import.meta.env.VITE_API_URL; // Replace with your backend URL
 
 // Get all services
 export const getServices = async () => {
