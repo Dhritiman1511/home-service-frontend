@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Hero from './userComponents/Hero';
 import PopularServices from './userComponents/PopularServices';
-import WhyCallOnce from './userComponents/WhyCallonce';
+import WhyCallOnce from './userComponents/WhyCallOnce';
 import CustomerReviews from './userComponents/CustomerReviews';
 
 const HomePage = () => {
