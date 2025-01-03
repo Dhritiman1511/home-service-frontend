@@ -20,31 +20,49 @@ const WrenchIcon = () => (
 
 const Hero = () => {
   return (
-    <section className="bg-white py-20">
-      <div className="container mx-10 px-6 max-w-6xl">
+    <section className="bg-white py-10 sm:py-14 lg:py-14">
+      <div className="container lg:mx-10 px-4 sm:px-6 lg:px-8 max-w-6xl">
+        <div className="lg:max-w-[70%]">
+          {" "}
+          {/* Hero Text */}
+          <h1 className="text-4xl sm:text-5xl lg:text-[70px] font-bold leading-tight sm:leading-[1.2] lg:leading-[1.1] mt-4 mb-4">
+            Expert Home Services, <br />
+            Wherever You Need <br />
+            Them
+          </h1>
+          {/* Hero Description */}
+          <div className="w-3/4">
+            {/* Default for small screens */}
+            <p className="block sm:hidden text-gray-600 text-base leading-relaxed mb-6">
+              Professional home services at your doorstep. Cleaning,
+              maintenance, and more!
+            </p>
 
-        <h1 className="text-[70px] font-bold leading-[1.1] mt-4 mb-4">
-          Expert Home Services, <br />
-          Wherever You Need <br />
-          Them
-        </h1>
+            {/* Medium screens */}
+            <p className="hidden sm:block lg:hidden text-gray-600 text-lg leading-relaxed mb-6">
+              Enjoy professional home services at your convenience. Cleaning,
+              maintenance, and specialized tasks made simple!
+            </p>
 
-        <p className="text-gray-600 text-lg mb-10 max-w-2xl leading-[1.1]">
-          Experience the convenience of professional home services right at your
-          doorstep. From cleaning and maintenance to specialized tasks, find the
-          help you need with just a click.
-        </p>
+            {/* Large screens */}
+            <p className="hidden lg:block text-gray-600 text-xl leading-relaxed mb-10">
+              Experience the convenience of professional home services right at
+              your doorstep. From cleaning and maintenance to specialized tasks,
+              find the help you need with just a click.
+            </p>
+          </div>
+          {/* Hero Buttons */}
+          <div className="flex flex-wrap gap-4">
+            <button className="flex items-center px-6 py-3 bg-black text-white rounded-full hover:bg-gray-900 transition-colors">
+              <DownloadIcon />
+              <span>Download our app</span>
+            </button>
 
-        <div className="flex flex-wrap gap-4">
-          <button className="flex items-center px-6 py-3 bg-black text-white rounded-full hover:bg-gray-900 transition-colors">
-            <DownloadIcon />
-            <span>Download our app</span>
-          </button>
-
-          <button className="flex items-center px-6 py-3 border-2 border-black rounded-full hover:bg-gray-50 transition-colors">
-            <WrenchIcon />
-            <span>Get services</span>
-          </button>
+            <button className="flex items-center px-6 py-3 border-2 border-black rounded-full hover:bg-gray-50 transition-colors">
+              <WrenchIcon />
+              <span>Get services</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>

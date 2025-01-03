@@ -26,15 +26,21 @@ const RoleBasedRoute = ({ element, requiredRole, ...rest }) => {
 
   useEffect(() => {
     if (loading) return; // Prevent redirect during loading state
-
-    if (!authData) {
-      // Redirect to login if not authenticated
-      window.location.href = "/login";
-    } else if (authData.role !== requiredRole) {
-      // Redirect to correct dashboard if user role doesn't match
-      window.location.href = `/${authData.role}/dashboard`;
+  
+    const redirectPath = authData
+      ? authData.role === "admin"
+        ? "/admin/dashboard"
+        : authData.role === "service_provider"
+        ? "/provider/dashboard"
+        : "/user/dashboard"
+      : "/login";
+  
+    // Perform the redirection
+    if (window.location.pathname !== redirectPath) {
+      window.location.href = redirectPath;
     }
   }, [authData, loading, requiredRole]);
+  
 
   return authData && authData.role === requiredRole ? element : null;
 };

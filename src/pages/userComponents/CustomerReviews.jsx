@@ -1,3 +1,5 @@
+import { useState, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const StarRating = ({ rating }) => {
   return (
@@ -17,6 +19,9 @@ const StarRating = ({ rating }) => {
 };
 
 const CustomerReviews = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
   const reviews = [
     {
       review: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
@@ -44,35 +49,111 @@ const CustomerReviews = () => {
     }
   ];
 
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % reviews.length);
+  }, [reviews.length]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + reviews.length) % reviews.length);
+  }, [reviews.length]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) {
+      const timer = setInterval(() => {
+        nextSlide();
+      }, 5000); // Change slide every 5 seconds on mobile
+
+      return () => clearInterval(timer);
+    }
+  }, [isMobile, nextSlide]);
+
+  const renderReviewCard = (review, index) => (
+    <div key={index} className={`${isMobile ? 'w-full flex-shrink-0' : ''} px-4 mb-8 md:mb-0`}>
+      <div className={`${review.bgColor} p-8 rounded-[32px] text-white relative h-full`}>
+        <StarRating rating={review.rating} />
+        <p className="mb-8 text-white/90 leading-relaxed">{review.review}</p>
+        <div className="absolute right-20 bottom-6">
+          <p className="font-semibold">{review.name}</p>
+          <p className="text-white/80">{review.title}</p>
+        </div>
+        <div className="absolute -right-2 -bottom-3">
+          <img
+            src={review.image}
+            alt={review.name}
+            className="w-20 h-20 rounded-full border-4 border-white"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <section className="py-20 bg-gray-50">
+    <section className="py-20 bg-gray-50 overflow-hidden">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-5">
-          <h2 className="text-5xl font-extrabold text-gray-900 mb-1">Customer reviews</h2>
-          <p className="text-xl text-gray-600">What customer tell about us.</p>
+        <div className="text-center mb-12">
+          <h2 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-1">Customer reviews</h2>
+          <p className="text-lg sm:text-xl text-gray-600">What customers tell about us.</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {reviews.map((review, index) => (
-            <div key={index} className="relative">
-              <div className={`${review.bgColor} p-8 rounded-[32px] text-white relative`}>
-                <StarRating rating={review.rating} />
-                <p className="mb-8 text-white/90 leading-relaxed">{review.review}</p>
-                <div className="absolute right-20 bottom-6">
-                  <p className="font-semibold">{review.name}</p>
-                  <p className="text-white/80">{review.title}</p>
-                </div>
-              </div>
-              <div className="absolute -right-2 -bottom-3">
-                <img
-                  src={review.image}
-                  alt={review.name}
-                  className="w-20 h-20 rounded-full border-4 border-white"
-                />
-              </div>
+        <div className="relative max-w-6xl mx-auto">
+          {isMobile ? (
+            <div 
+              className="flex transition-transform duration-500 ease-in-out" 
+              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+            >
+              {reviews.map((review, index) => renderReviewCard(review, index))}
             </div>
-          ))}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {reviews.map((review, index) => renderReviewCard(review, index))}
+            </div>
+          )}
+
+          {isMobile && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-colors duration-200"
+                aria-label="Previous review"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-colors duration-200"
+                aria-label="Next review"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </>
+          )}
         </div>
+
+        {isMobile && (
+          <div className="flex justify-center mt-8">
+            {reviews.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-3 h-3 mx-1 rounded-full transition-colors duration-200 ${
+                  currentIndex === index ? 'bg-blue-500' : 'bg-gray-300'
+                }`}
+                aria-label={`Go to review ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

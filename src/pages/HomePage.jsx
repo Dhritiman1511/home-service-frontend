@@ -11,7 +11,6 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If the user is logged in, redirect to the User Dashboard
     if (authData) {
       navigate('/user/dashboard');
     }

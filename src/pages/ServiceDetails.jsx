@@ -89,7 +89,7 @@ const ServiceDetails = () => {
       <span
         key={index}
         onClick={() => handleStarClick(index + 1, isEditMode)}
-        className={`cursor-pointer text-2xl ${
+        className={`cursor-pointer text-xl md:text-2xl ${
           index < currentRating ? 'text-yellow-500' : 'text-gray-300'
         }`}
       >
@@ -100,45 +100,47 @@ const ServiceDetails = () => {
   };
 
   if (error) {
-    return <div className="p-6 text-red-500 text-center font-semibold">{error}</div>;
+    return <div className="p-4 text-red-500 text-center font-semibold">{error}</div>;
   }
 
   if (!service) {
-    return <div className="p-6 text-center">Loading...</div>;
+    return <div className="p-4 text-center">Loading...</div>;
   }
 
   return (
-    <div className="max-w-full mx-auto px-80 py-20 bg-gray-50">
-      <div className="bg-white shadow-lg rounded-2xl p-8 mb-8">
-        <h1 className="text-3xl font-bold mb-4 text-gray-800">{service.name}</h1>
-        <p className="text-lg mb-6 text-gray-600">{service.description}</p>
-        <div className="flex justify-between items-center mb-6">
+    <div className="w-full mx-auto px-4 md:px-8 lg:px-16 xl:px-32 py-6 md:py-12 bg-gray-50">
+      <div className="bg-white shadow-lg rounded-2xl p-4 md:p-8 mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-gray-800">{service.name}</h1>
+        <p className="text-base md:text-lg mb-4 md:mb-6 text-gray-600">{service.description}</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 md:mb-6">
           <div>
-            <p className="text-2xl font-semibold text-gray-800">${service.price}</p>
+            <p className="text-xl md:text-2xl font-semibold text-gray-800">${service.price}</p>
             <p className="text-sm text-gray-500">Provided by: {service.providerName}</p>
           </div>
           <button
             onClick={handleBookNow}
-            className="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-105"
+            className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 md:py-3 px-4 md:px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-105"
           >
             Book Now
           </button>
         </div>
       </div>
 
-      <div className="bg-white shadow-lg rounded-2xl p-8">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Reviews</h2>
+      <div className="bg-white shadow-lg rounded-2xl p-4 md:p-8">
+        <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-gray-800">Reviews</h2>
 
         {reviews.length === 0 && (
           <p className="text-gray-600 italic">No reviews yet. Be the first to review!</p>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {reviews.map((review) => (
-            <div key={review._id} className="border-b border-gray-200 pb-6">
-              <div className="flex justify-between items-start mb-2">
+            <div key={review._id} className="border-b border-gray-200 pb-4 md:pb-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-2">
                 <div>
-                  <strong className="text-gray-800">{review.user.name}</strong>
+                  <strong className="text-gray-800 block sm:inline mb-1 sm:mb-0">
+                    {review.user.name}
+                  </strong>
                   {renderStarRating(review.rating)}
                 </div>
                 <div className="space-x-2">
@@ -161,11 +163,11 @@ const ServiceDetails = () => {
           ))}
         </div>
 
-        <div className="mt-8">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">
+        <div className="mt-6 md:mt-8">
+          <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-gray-800">
             {isEditing ? 'Edit Review' : 'Add Review'}
           </h3>
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
               {renderStarRating(isEditing ? editingReview.rating : newReview.rating, isEditing)}

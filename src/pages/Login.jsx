@@ -12,10 +12,9 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // Try to log the user in
       await login(email, password);
       toast.success("Login successful!"); // Show success toast
-      navigate("/user/dashboard"); // Redirect after successful login
+      navigate("/user/dashboard");
     } catch (error) {
       toast.error("Login failed. Please try again."); // Show error toast
     }
