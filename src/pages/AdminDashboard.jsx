@@ -13,23 +13,25 @@ import {
   updateBooking,
   deleteBooking,
   updateBookingStatus,
-} from "../services/bookingService"; // Import booking services
+} from "../services/bookingService";
 import {
   getCategories,
   createCategory,
   updateCategory,
   deleteCategory,
-} from "../services/categoryService"; // Import category services
+} from "../services/categoryService";
 import ServiceList from "./adminComponents/ServiceList";
 import ServiceForm from "./adminComponents/ServiceForm";
-import BookingList from "./adminComponents/BookingList"; // Import the BookingList component
-import BookingForm from "./adminComponents/BookingForm"; // Import the BookingForm component
-import CategoryList from "./adminComponents/CategoryList"; // Import the CategoryList component
-import CategoryForm from "./adminComponents/CategoryForm"; // Import the CategoryForm component
+import BookingList from "./adminComponents/BookingList";
+import BookingForm from "./adminComponents/BookingForm";
+import CategoryList from "./adminComponents/CategoryList";
+import CategoryForm from "./adminComponents/CategoryForm";
 import ServiceProviderList from "./adminComponents/ServiceProviderList";
 import UserList from "./adminComponents/UserList";
+import { Users, Briefcase, Calendar, Box, Tags } from 'lucide-react';
 
 const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState('users');
   const [services, setServices] = useState([]);
   const [categories, setCategories] = useState([]);
   const [newService, setNewService] = useState({
@@ -46,6 +48,13 @@ const AdminDashboard = () => {
   const [editingBooking, setEditingBooking] = useState(null);
   const [users, setUsers] = useState([]);
   const [serviceProviders, setServiceProviders] = useState([]);
+  const tabs = [
+    { id: 'users', label: 'Users', icon: Users },
+    { id: 'providers', label: 'Service Providers', icon: Briefcase },
+    { id: 'services', label: 'Services', icon: Box },
+    { id: 'categories', label: 'Categories', icon: Tags },
+    { id: 'bookings', label: 'Bookings', icon: Calendar },
+  ];
 
   useEffect(() => {
     fetchServices();
@@ -272,59 +281,102 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-lg shadow">
+          <div className="border-b border-gray-200">
+            <div className="sm:px-6 px-4">
+              <h1 className="text-2xl font-bold text-gray-900 py-6">Admin Dashboard</h1>
+            </div>
+            <div className="flex overflow-x-auto">
+              {tabs.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveTab(id)}
+                  className={`
+                    flex items-center px-4 py-4 text-sm font-medium whitespace-nowrap
+                    border-b-2 transition-colors duration-200 ease-in-out
+                    hover:text-blue-600 focus:outline-none
+                    ${activeTab === id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <Icon className="w-5 h-5 mr-2" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      {/* Users Section */}
-      <UserList users={users} />
+          <div className="p-6">
+            {activeTab === 'users' && (
+              <div className="space-y-6">
+                <UserList users={users} />
+              </div>
+            )}
 
-      {/* Service Providers Section */}
-      <ServiceProviderList serviceProviders={serviceProviders} />
+            {activeTab === 'providers' && (
+              <div className="space-y-6">
+                <ServiceProviderList serviceProviders={serviceProviders} />
+              </div>
+            )}
 
-      {/* Services Section */}
-      <ServiceList
-        services={services}
-        handleEditService={handleEditService}
-        handleDeleteService={handleDeleteService}
-      />
-      <ServiceForm
-        newService={newService}
-        categories={categories}
-        editingService={editingService}
-        handleInputChange={handleInputChange}
-        handleSubmit={editingService ? handleUpdateService : handleAddService}
-      />
+            {activeTab === 'services' && (
+              <div className="space-y-6">
+                <ServiceList
+                  services={services}
+                  handleEditService={handleEditService}
+                  handleDeleteService={handleDeleteService}
+                />
+                <ServiceForm
+                  newService={newService}
+                  categories={categories}
+                  editingService={editingService}
+                  handleInputChange={handleInputChange}
+                  handleSubmit={editingService ? handleUpdateService : handleAddService}
+                />
+              </div>
+            )}
 
-      {/* Category Section */}
-      <CategoryList
-        categories={categories}
-        handleEditCategory={handleEditCategory}
-        handleDeleteCategory={handleDeleteCategory}
-      />
-      <CategoryForm
-        newCategory={newCategory}
-        editingCategory={editingCategory}
-        handleInputChange={(e) =>
-          setNewCategory({ ...newCategory, name: e.target.value })
-        }
-        handleSubmit={
-          editingCategory ? handleUpdateCategory : handleAddCategory
-        }
-      />
+            {activeTab === 'categories' && (
+              <div className="space-y-6">
+                <CategoryForm
+                  newCategory={newCategory}
+                  editingCategory={editingCategory}
+                  handleInputChange={(e) =>
+                    setNewCategory({ ...newCategory, name: e.target.value })
+                  }
+                  handleSubmit={editingCategory ? handleUpdateCategory : handleAddCategory}
+                />
+                <CategoryList
+                  categories={categories}
+                  handleEditCategory={handleEditCategory}
+                  handleDeleteCategory={handleDeleteCategory}
+                />
+              </div>
+            )}
 
-      {/* Bookings Section */}
-      <BookingList
-        bookings={bookings}
-        handleEditBooking={handleEditBooking}
-        handleDeleteBooking={handleDeleteBooking}
-        handleUpdateBookingStatus={handleUpdateBookingStatus}
-      />
-      {editingBooking && (
-        <BookingForm
-          booking={editingBooking}
-          handleUpdateBooking={handleUpdateBooking}
-        />
-      )}
+            {activeTab === 'bookings' && (
+              <div className="space-y-6">
+                <BookingList
+                  bookings={bookings}
+                  handleEditBooking={handleEditBooking}
+                  handleDeleteBooking={handleDeleteBooking}
+                  handleUpdateBookingStatus={handleUpdateBookingStatus}
+                />
+                {editingBooking && (
+                  <BookingForm
+                    booking={editingBooking}
+                    handleUpdateBooking={handleUpdateBooking}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
