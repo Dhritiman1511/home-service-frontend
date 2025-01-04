@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 const DownloadIcon = () => (
   <svg className="w-5 h-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
     <path
@@ -19,6 +21,11 @@ const WrenchIcon = () => (
 );
 
 const Hero = () => {
+  const navigate = useNavigate();
+
+  const handleRedirect = () => {
+    navigate("/services");
+  };
   return (
     <section className="bg-white py-10 sm:py-14 lg:py-14">
       <div className="container lg:mx-10 px-4 sm:px-6 lg:px-8 max-w-6xl">
@@ -58,7 +65,10 @@ const Hero = () => {
               <span>Download our app</span>
             </button>
 
-            <button className="flex items-center px-6 py-3 border-2 border-black rounded-full hover:bg-gray-50 transition-colors">
+            <button
+              onClick={handleRedirect}
+              className="flex items-center px-6 py-3 border-2 border-black rounded-full hover:bg-gray-50 transition-colors"
+            >
               <WrenchIcon />
               <span>Get services</span>
             </button>

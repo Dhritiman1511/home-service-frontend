@@ -1,16 +1,33 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { searchServiceByName } from "../services/serviceService";
 import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
+  const location = useLocation();
+  const isAuthPage = ['/login', '/register'].includes(location.pathname);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { authData, logout } = useAuth();
+
+  if (isAuthPage) {
+    return (
+      <nav className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4">
+          <div className="py-4">
+            <Link to="/" className="flex items-center space-x-2">
+              <img src="/MAINLOGO.svg" alt="Logo" className="w-12 h-12" />
+              <span className="text-4xl font-bold">CallOnce</span>
+            </Link>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
