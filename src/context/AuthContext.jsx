@@ -53,6 +53,7 @@ export const AuthProvider = ({ children }) => {
       const userData = {
         token,
         role: response.data.role,
+        profilePicture: response.data.profilePicture // Make sure your backend sends this
       };
       
       setAuthData(userData);
@@ -105,6 +106,20 @@ export const AuthProvider = ({ children }) => {
     navigate("/login");
   };
 
+  const updateProfilePicture = (profilePictureUrl) => {
+    const updatedAuthData = {
+      ...authData,
+      profilePicture: profilePictureUrl
+    };
+    setAuthData(updatedAuthData);
+    // Update the cookie with the new profile picture URL
+    Cookies.set("authData", JSON.stringify(updatedAuthData), {
+      expires: 7,
+      secure: true,
+      sameSite: 'strict'
+    });
+  };
+
   const navigateToDashboard = (role) => {
     if (role === "user") {
       navigate("/user/dashboard");
@@ -121,7 +136,8 @@ export const AuthProvider = ({ children }) => {
       login, 
       register, 
       logout,
-      loading 
+      loading,
+      updateProfilePicture
     }}>
       {children}
     </AuthContext.Provider>

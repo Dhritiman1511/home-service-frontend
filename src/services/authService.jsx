@@ -33,3 +33,26 @@ export const logoutService = () => {
   Cookies.remove("authData"); // Clear the auth cookies
   delete axios.defaults.headers.common["Authorization"]; // Clear axios headers
 };
+
+export const uploadProfilePicture = async (file) => {
+  const formData = new FormData();
+  formData.append('profilePicture', file);
+
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const response = await fetch(`${API_URL}/auth/upload-profile-picture`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload profile picture');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
