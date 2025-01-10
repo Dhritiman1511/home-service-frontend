@@ -1,10 +1,11 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getBookingsByServiceId } from "../services/serviceProviderService";
 import { updateBookingStatus } from "../services/bookingService";
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { Calendar, Clock, Phone, MapPin, User } from 'lucide-react';
+import { Calendar, Clock, Phone, MapPin, User, Image as ImageIcon, X } from 'lucide-react';
 
 const ServiceBookings = () => {
   const { serviceId } = useParams();
@@ -14,6 +15,7 @@ const ServiceBookings = () => {
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const { authData, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -105,6 +107,54 @@ const ServiceBookings = () => {
     return colors[status] || 'border-gray-200';
   };
 
+  const ImageModal = ({ imageUrl, onClose }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+      <div className="relative max-w-4xl w-full">
+        <button
+          onClick={onClose}
+          className="absolute -top-12 right-0 p-2 text-white hover:text-gray-300 transition-colors"
+        >
+          <X className="w-6 h-6" />
+        </button>
+        <img
+          src={imageUrl}
+          alt="Enlarged view"
+          className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
+        />
+      </div>
+    </div>
+  );
+
+  // Image Gallery component
+  const ImageGallery = ({ images }) => {
+    if (!images || images.length === 0) return null;
+
+    return (
+      <div className="mt-4 border-t pt-4">
+        <div className="flex items-center gap-2 mb-3">
+          <ImageIcon className="w-4 h-4 text-gray-400" />
+          <span className="text-sm font-medium text-gray-700">Booking Images</span>
+        </div>
+        <div className="grid grid-cols-5 gap-2">
+          {images.map((image, index) => (
+            <button
+              key={index}
+              onClick={() => setSelectedImage(image)}
+              className="relative group aspect-square overflow-hidden rounded-lg border border-gray-200 hover:border-blue-500 transition-colors"
+            >
+              <img
+                src={image}
+                alt={`Booking image ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity" />
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -130,6 +180,13 @@ const ServiceBookings = () => {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Service Bookings</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-2">Manage your service bookings and their statuses</p>
       </div>
+
+      {selectedImage && (
+        <ImageModal
+          imageUrl={selectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
+      )}
 
       {bookings.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm p-6 sm:p-8 text-center">
@@ -189,6 +246,11 @@ const ServiceBookings = () => {
                     <span>{booking.phone}</span>
                   </div>
                 </div>
+
+                {/* Add Image Gallery */}
+                {booking.images && booking.images.length > 0 && (
+                  <ImageGallery images={booking.images} />
+                )}
 
                 <div className="mt-6 pt-4 border-t">
                   <label htmlFor={`status-${booking._id}`} className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">

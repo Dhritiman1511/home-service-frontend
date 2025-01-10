@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getServiceById } from '../services/serviceService';
 import { getReviewsForService, postReview, updateReview, deleteReview } from '../services/reviewService';
+import ImageGallery from './userComponents/ImageGallery';
 
 const ServiceDetails = () => {
   const { serviceId } = useParams();
@@ -110,11 +111,22 @@ const ServiceDetails = () => {
   return (
     <div className="w-full mx-auto px-4 md:px-8 lg:px-16 xl:px-32 py-6 md:py-12 bg-gray-50">
       <div className="bg-white shadow-lg rounded-2xl p-4 md:p-8 mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-gray-800">{service.name}</h1>
-        <p className="text-base md:text-lg mb-4 md:mb-6 text-gray-600">{service.description}</p>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 md:mb-6">
+        <div className="flex items-start gap-6 mb-4">
+          <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
+            <img
+              src={service.icon || '/PlumberLogo.jpg'}
+              alt={`${service.name} icon`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-gray-800">{service.name}</h1>
+            <p className="text-base md:text-lg mb-4 md:mb-6 text-gray-600">{service.description}</p>
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <p className="text-xl md:text-2xl font-semibold text-gray-800">${service.price}</p>
+            <p className="text-xl md:text-2xl font-semibold text-gray-800">₹{service.price}</p>
             <p className="text-sm text-gray-500">Provided by: {service.providerName}</p>
           </div>
           <button
@@ -124,6 +136,12 @@ const ServiceDetails = () => {
             Book Now
           </button>
         </div>
+      </div>
+
+      <div className='bg-white shadow-lg rounded-2xl p-4 md:p-8 mb-6 md:mb-8'>
+        {service.images && service.images.length > 0 && (
+          <ImageGallery images={service.images} />
+        )}
       </div>
 
       <div className="bg-white shadow-lg rounded-2xl p-4 md:p-8">

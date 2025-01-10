@@ -3,20 +3,68 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL; // Replace with your backend URL
 
-// Get all bookings by id (with optional pagination and status filter)
-export const getBookings = async (userId) => {
+// Create a new booking with images
+export const createBooking = async (bookingData) => {
   try {
-    const response = await axios.get(`${API_URL}/bookings/${userId}`);
+    const formData = new FormData();
+    
+    // Append booking details
+    formData.append('service', bookingData.service);
+    formData.append('scheduledDate', bookingData.scheduledDate);
+    formData.append('address', bookingData.address);
+    formData.append('phone', bookingData.phone);
+    
+    // Append images if they exist
+    if (bookingData.images) {
+      Array.from(bookingData.images).forEach((image) => {
+        formData.append('images', image);
+      });
+    }
+
+    const response = await axios.post(`${API_URL}/bookings`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-// Create a new booking
-export const createBooking = async (bookingDetails) => {
+// Add images to existing booking
+export const addBookingImages = async (bookingId, images) => {
   try {
-    const response = await axios.post(`${API_URL}/bookings`, bookingDetails);
+    const formData = new FormData();
+    Array.from(images).forEach((image) => {
+      formData.append('images', image);
+    });
+
+    const response = await axios.post(`${API_URL}/bookings/${bookingId}/images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Delete booking image
+export const deleteBookingImage = async (bookingId, imageIndex) => {
+  try {
+    const response = await axios.delete(`${API_URL}/bookings/${bookingId}/images/${imageIndex}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Get all bookings by id (with optional pagination and status filter)
+export const getBookings = async (userId) => {
+  try {
+    const response = await axios.get(`${API_URL}/bookings/${userId}`);
     return response.data;
   } catch (error) {
     throw error;

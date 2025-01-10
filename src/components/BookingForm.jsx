@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { createBooking } from '../services/bookingService';
 import { getServiceById } from '../services/serviceService';
+import { X } from 'lucide-react';
 
 const BookingForm = () => {
   const [searchParams] = useSearchParams();
@@ -14,6 +15,9 @@ const BookingForm = () => {
     address: '',
     phone: '',
   });
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [imageError, setImageError] = useState('');
 
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState(null);
@@ -41,6 +45,44 @@ const BookingForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Validate number of images
+    if (images.length + files.length > 5) {
+      setImageError('Maximum 5 images allowed');
+      return;
+    }
+
+    // Validate file types and sizes
+    const validFiles = files.filter(file => {
+      const isValidType = ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type);
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
+      return isValidType && isValidSize;
+    });
+
+    if (validFiles.length !== files.length) {
+      setImageError('Please only upload PNG, JPEG, or JPG images under 5MB');
+      return;
+    }
+
+    setImageError('');
+    setImages(prevImages => [...prevImages, ...validFiles]);
+
+    // Create preview URLs
+    const newPreviews = validFiles.map(file => URL.createObjectURL(file));
+    setImagePreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
+  };
+
+  const removeImage = (index) => {
+    setImages(prevImages => prevImages.filter((_, i) => i !== index));
+    setImagePreviews(prevPreviews => {
+      // Revoke the URL to prevent memory leaks
+      URL.revokeObjectURL(prevPreviews[index]);
+      return prevPreviews.filter((_, i) => i !== index);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -48,11 +90,14 @@ const BookingForm = () => {
       const bookingDetails = { 
         ...formData, 
         service: serviceId, 
-        status: 'pending' 
+        status: 'pending',
+        images: images
       };
       await createBooking(bookingDetails);
       setSuccessMessage('Booking created successfully!');
       setFormData({ scheduledDate: '', address: '', phone: '' });
+      setImages([]);
+      setImagePreviews([]);
       setError(null);
       // Redirect to payment page
       navigate('/payment');
@@ -143,6 +188,47 @@ const BookingForm = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-slate-500 focus:border-slate-500 transition duration-150 ease-in-out"
                 />
               </div>
+              
+              {/* Image Upload Section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Upload Images (Optional - Max 5)
+                </label>
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg, image/jpg"
+                  onChange={handleImageChange}
+                  multiple
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-slate-500 focus:border-slate-500 transition duration-150 ease-in-out"
+                  disabled={images.length >= 5}
+                />
+                {imageError && (
+                  <p className="mt-1 text-sm text-red-500">{imageError}</p>
+                )}
+                
+                {/* Image Previews */}
+                {imagePreviews.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={preview} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="h-24 w-full object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div>
                 <button
                   type="submit"

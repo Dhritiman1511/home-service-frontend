@@ -24,23 +24,70 @@ export const getServiceById = async (serviceId) => {
   }
 };
 
-// Add a new service
-export const addService = async (serviceDetails) => {
+// Add a new service with images
+export const addService = async (serviceData) => {
   try {
-    const response = await axios.post(`${API_URL}/services`, serviceDetails);
+    const formData = new FormData();
+    
+    // Add basic service details
+    Object.keys(serviceData).forEach(key => {
+      if (key !== 'images'&& key !== 'icon') {
+        formData.append(key, serviceData[key]);
+      }
+    });
+
+    // Add icon if provided
+    if (serviceData.icon) {
+      formData.append('icon', serviceData.icon);
+    }
+    
+    // Add images
+    if (serviceData.images) {
+      serviceData.images.forEach(image => {
+        formData.append('images', image);
+      });
+    }
+
+    const response = await axios.post(`${API_URL}/services`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-// Update an existing service
-export const updateService = async (serviceId, serviceDetails) => {
+// Update service with images
+export const updateService = async (serviceId, serviceData) => {
   try {
-    const response = await axios.put(
-      `${API_URL}/services/${serviceId}`,
-      serviceDetails
-    );
+    const formData = new FormData();
+    
+    // Add basic service details
+    Object.keys(serviceData).forEach(key => {
+      if (key !== 'images' && key !== 'icon') {
+        formData.append(key, serviceData[key]);
+      }
+    });
+
+    // Add new icon if provided
+    if (serviceData.icon) {
+      formData.append('icon', serviceData.icon);
+    }
+    
+    // Add new images
+    if (serviceData.images) {
+      serviceData.images.forEach(image => {
+        formData.append('images', image);
+      });
+    }
+
+    const response = await axios.put(`${API_URL}/services/${serviceId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -52,6 +99,28 @@ export const deleteService = async (serviceId) => {
   try {
     const response = await axios.delete(`${API_URL}/services/${serviceId}`);
     console.log(response);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Delete service images
+export const deleteServiceImages = async (serviceId, imageUrls) => {
+  try {
+    const response = await axios.delete(`${API_URL}/services/${serviceId}/images`, {
+      data: { imageUrls }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Delete service icon
+export const deleteServiceIcon = async (serviceId) => {
+  try {
+    const response = await axios.delete(`${API_URL}/services/${serviceId}/icon`);
     return response.data;
   } catch (error) {
     throw error;
