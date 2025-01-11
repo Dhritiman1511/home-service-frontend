@@ -1,8 +1,10 @@
+/* eslint-disable react/prop-types */
 import { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { loginService, registerService } from "../services/authService";
+import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext();
 
@@ -29,7 +31,6 @@ export const AuthProvider = ({ children }) => {
 
     initializeAuth();
 
-    // Add axios interceptor for handling 401 errors
     const interceptor = axios.interceptors.response.use(
       response => response,
       error => {
@@ -53,7 +54,7 @@ export const AuthProvider = ({ children }) => {
       const userData = {
         token,
         role: response.data.role,
-        profilePicture: response.data.profilePicture // Make sure your backend sends this
+        profilePicture: response.data.profilePicture
       };
       
       setAuthData(userData);
@@ -120,6 +121,19 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  const getUserIdFromToken = (token) => {
+    try {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken && decodedToken.id) {
+        return decodedToken.id;
+      }
+      throw new Error('User ID not found in token');
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      throw new Error('Invalid token');
+    }
+  };
+
   const navigateToDashboard = (role) => {
     if (role === "user") {
       navigate("/user/dashboard");
@@ -137,7 +151,8 @@ export const AuthProvider = ({ children }) => {
       register, 
       logout,
       loading,
-      updateProfilePicture
+      updateProfilePicture,
+      getUserIdFromToken,
     }}>
       {children}
     </AuthContext.Provider>

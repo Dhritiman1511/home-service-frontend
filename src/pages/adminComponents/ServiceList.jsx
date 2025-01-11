@@ -1,6 +1,6 @@
 import { Edit2, Trash2, DollarSign, Calendar, Clock } from 'lucide-react';
 
-const ServiceList = ({ services, handleEditService, handleDeleteService }) => {
+const ServiceList = ({ services, handleDeleteService }) => { // handleEditService,
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden">
       <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
@@ -35,13 +35,13 @@ const ServiceList = ({ services, handleEditService, handleDeleteService }) => {
                     {service.category}
                   </span>
                   <div className="flex space-x-2">
-                    <button
+                    {/* <button
                       onClick={() => handleEditService(service)}
                       className="p-2 text-blue-600 hover:bg-blue-100 rounded-full transition-colors duration-300"
                       aria-label="Edit service"
                     >
                       <Edit2 className="w-5 h-5" />
-                    </button>
+                    </button> */}
                     <button
                       onClick={() => handleDeleteService(service._id)}
                       className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors duration-300"

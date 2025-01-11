@@ -327,16 +327,16 @@ const AdminDashboard = () => {
               <div className="space-y-6">
                 <ServiceList
                   services={services}
-                  handleEditService={handleEditService}
+                  // handleEditService={handleEditService}
                   handleDeleteService={handleDeleteService}
                 />
-                <ServiceForm
+                {/* <ServiceForm
                   newService={newService}
                   categories={categories}
                   editingService={editingService}
                   handleInputChange={handleInputChange}
                   handleSubmit={editingService ? handleUpdateService : handleAddService}
-                />
+                /> */}
               </div>
             )}
 

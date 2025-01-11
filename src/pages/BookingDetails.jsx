@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getBookings, updateBookingStatus } from '../services/bookingService';
 import { useAuth } from '../context/AuthContext';
-import { jwtDecode } from 'jwt-decode';
 import { Image as ImageIcon, X } from 'lucide-react';
 
 const BookingDetails = () => {
@@ -12,7 +11,7 @@ const BookingDetails = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
-  const { authData, loading: authLoading } = useAuth();
+  const { authData, loading: authLoading, getUserIdFromToken } = useAuth();
 
   useEffect(() => {
     const fetchUserBookings = async (userId) => {
@@ -30,17 +29,16 @@ const BookingDetails = () => {
         setLoading(false);
       }
     };
-
+  
     if (authLoading) return;
-
+  
     if (!authData || !authData.token) {
       navigate('/login');
       return;
     }
-
+  
     try {
-      const decodedToken = jwtDecode(authData.token);
-      const userId = decodedToken.id;
+      const userId = getUserIdFromToken(authData.token);
       if (userId) {
         fetchUserBookings(userId);
       } else {
@@ -48,11 +46,10 @@ const BookingDetails = () => {
         navigate('/login');
       }
     } catch (error) {
-      console.error('Error decoding token:', error);
-      setError('Invalid token. Please log in again.');
+      setError(error.message);
       navigate('/login');
     }
-  }, [authData, authLoading, navigate]);
+  }, [authData, authLoading, getUserIdFromToken, navigate]);
 
   const handleCancelBooking = async (bookingId) => {
     try {
@@ -163,7 +160,7 @@ const BookingDetails = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold mb-8 text-gray-800">Your Bookings</h1>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {bookings.map((booking) => (
+          {bookings.slice().reverse().map((booking) => (
             <div
               key={booking._id}
               className="bg-white rounded-lg shadow-md overflow-hidden transition-shadow duration-300 hover:shadow-lg"

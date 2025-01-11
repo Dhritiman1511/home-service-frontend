@@ -85,7 +85,7 @@ export const getImageUploadRules = () => {
   return {
     maxImages: 5,
     allowedTypes: ['image/jpeg', 'image/png', 'image/jpg'],
-    maxSizeInMB: 5,
+    maxSizeInMB: 10,
   };
 };
 
